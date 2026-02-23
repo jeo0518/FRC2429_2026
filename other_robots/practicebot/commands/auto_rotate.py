@@ -16,6 +16,7 @@ from subsystems.led import Led
 from subsystems.vision import Vision
 from helpers.log_command import log_command
 from helpers.apriltag_utils import get_nearest_tag
+from drive_by_joystick_subsystem_targeting import DriveByJoystickSubsystemTargeting as drive
 
 
 @log_command(console=True, nt=False, print_init=True, print_end=True)
@@ -244,7 +245,7 @@ class AutoToAngle(commands2.Command):  #
             # rot_output = self.rot_pid.calculate(robot_pose.rotation().radians())
             rot_output = self.rot_pid.calculate(robot_to_hub_angle.radians())  # setpoint is the target pose radians
 
-            # TODO optimize the last mile and have it gracefully not oscillate
+            # TODO optimize the last mile and have it gracefully not oscillate --- added codes to def execute to prevent oscillation
             rot_max, rot_min = 0.5, 0.1
             # trans_max, trans_min = 0.3, 0.1  # it browns out when you start if this is too high
 
@@ -282,16 +283,29 @@ class AutoToAngle(commands2.Command):  #
             # y_output = self.y_limiter.calculate(y_output)
             rot_output = self.rot_limiter.calculate(rot_output)
             # I finally tracked down the initial error to the keep_angle - if it is True it has a rotation kink the first time
-            # ToDo: Find a way to get xSpeed and ySpeed of the robot
-            self.swerve.drive( rot_output, fieldRelative=True, rate_limited=False, keep_angle=False)
+            
+            # ToDo: Find a way to get xSpeed and ySpeed of the robot --- added get_relative_speeds() to incorporate speeds into swerve.drive
+            velocity = self.swerve.get_relative_speeds()
+            xspeed = velocity.vx
+            yspeed = velocity.vy
+
+            self.swerve.drive(rot_output, fieldRelative=True, rate_limited=False, keep_angle=False, xSpeed=xspeed, ySpeed=yspeed)
+
 
             # keep track of how long we've been good - allow to recover if we overshoot
             rotation_achieved = abs(math.degrees(diff_radians)) < ac.k_rotation_tolerance.degrees()
             # translation_achieved = error_vector.norm() < ac.k_translation_tolerance_meters
+            
             if rotation_achieved:
                 self.tolerance_counter += 1
+                # making rotation power zero when needed rotation is achieved
+                rot_output = 0
             else:
                 self.tolerance_counter = 0
+                # if rotation power is small yet the robot hasnt swung past the target
+                if abs(rot_output) < rot_min and not self.rot_overshot:
+                    # then make the rotation power at least minimum constant
+                    rot_output = math.copysign(rot_min, rot_output)
 
             if self.counter % 10 == 0 and (wpilib.RobotBase.isSimulation() or self.print_debug):
                 msg = f'| {math.degrees(diff_radians):>+6.1f}° {str(self.rot_overshot):>5} {rot_output:+.2f} | {self.tolerance_counter} '
