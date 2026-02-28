@@ -42,6 +42,8 @@ from pathplannerlib.config import DCMotor, PIDConstants
 
 import constants
 
+from wpimath.controller import PIDController
+
 
 class DriveConstants:
     """
@@ -180,6 +182,9 @@ class DriveConstants:
             swerve_dict[key]['turning_offset'] = 0
     else:
         pass
+
+    # PIDController
+    k_angle_pid = PIDController(0.01, 0, 0)
 
 
 class NeoMotorConstants:

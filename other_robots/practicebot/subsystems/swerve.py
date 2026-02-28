@@ -65,7 +65,7 @@ class Swerve (Subsystem):
         self.keep_angle_timer = Timer()
         self.keep_angle_timer.start()
         self.keep_angle_timer.reset()
-        self.keep_angle_pid = PIDController(0.015, 0, 0)  # todo: put these in constants.  allow 1% stick per degree
+        self.keep_angle_pid = dc.k_angle_pid
         self.keep_angle_pid.enableContinuousInput(-180, 180)  # using the gyro's yaw is b/w -180 and 180
         self.last_rotation_time = 0
         self.time_since_rotation = 0

@@ -6,6 +6,7 @@ from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 # This data is initialized once when the module is first imported.
 # TODO -  right now all the libraries are messed up, so we have to do this manually  - 20260118 CJH
 #layout = robotpy_apriltag.AprilTagFieldLayout.loadField(robotpy_apriltag.AprilTagField.k2026RebuiltWelded)
+
 if wpilib.RobotBase.isSimulation():
     layout = robotpy_apriltag.AprilTagFieldLayout('2026-rebuilt-welded_json')
 else:

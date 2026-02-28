@@ -12,6 +12,8 @@ from helpers.utilities import set_config_defaults
 
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 
+from wpimath.controller import PIDController
+
 k_swerve_config = "comp"  # choose between practice bot and comp bot for now - they differ by swerve ofsets
 
 # Generator for unique counter offsets
@@ -59,8 +61,6 @@ k_swerve_rate_limited = True
 k_field_oriented = True  # is there any reason for this at all?
 
 class FieldConstants:
-    # this changes year by year.  TODO: need to find it by software --- partly fixed..?
-
     try:
         # try getting field info via apriltag
         layout = AprilTagFieldLayout.loadField(AprilTagField.k2026Reefscape)
