@@ -10,6 +10,8 @@ from typing import Union, List
 
 from helpers.utilities import set_config_defaults
 
+from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
+
 k_swerve_config = "comp"  # choose between practice bot and comp bot for now - they differ by swerve ofsets
 
 # Generator for unique counter offsets
